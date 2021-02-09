@@ -25,7 +25,7 @@
 ## @seealso{process_texi}
 ## @end deftypefn
 
-function retval = create_prototypes (textinfo_path, output_path)
+function create_prototypes (textinfo_path, output_path)
   mkdir (output_path);
   
   texi_list = ls ([textinfo_path filesep "*.texi"]);
