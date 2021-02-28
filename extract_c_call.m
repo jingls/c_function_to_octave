@@ -59,9 +59,9 @@
 ## @example
 ## @group
 ## defaults.is_pointer.output = 1;
-## str_call = 'double gsl_stats_mean (const double data[], size_t stride, size_t n);';
-## [return_type, function_name, args] = extract_c_call(str_call, defaults);
-## disp(args(1).name);
+## str_call = 'double perform_calculation(double a, double b);';
+## [return_type, function_name, args] = extract_c_call (str_call, defaults);
+## disp (args(1).name);
 ##       @result{} 'data'
 ## @end group
 ## @end example
@@ -188,7 +188,6 @@ function [return_type, function_name, args] = extract_c_call (str_call, defaults
     % argument is '...'. If that is the case, then the name of the argument will
     % be '...'.
     if (numel (cstr) == 1 && strcmp (cstr, "..."))
-      args(i).has_underline = 0;
       args(i).name = "...";
       args(i).is_array = 0;
       continue;
@@ -198,14 +197,6 @@ function [return_type, function_name, args] = extract_c_call (str_call, defaults
     % data[]
     [name, rem] = strtok (cstr{pos}, "[");
     
-    % sometimes the argument name may conflict with Octave's names,
-    % for example mean. So prepend a symbol and indicate.
-    args(i).has_underline = 0;
-    c = exist (name);
-    if (c == 5) % 0 means there is nothing associated, 5 is built-in function
-      name = ["_" name];
-      args(i).has_underline = 1;
-    end
     args(i).name = name;
     
     % if find the brakets, it means the argument is an array
@@ -236,7 +227,6 @@ endfunction
 %! assert (args(1).name, '_min')
 %! assert (args(1).type, 'double')
 %! assert (args(1).is_pointer, 1)
-%! assert (args(1).has_underline, 1)
 %! assert (args(1).const, 0)
 %! assert (args(1).output, 1)
 %! assert (args(1).real, 0)
@@ -245,7 +235,6 @@ endfunction
 %! assert (args(3).name, 'data')
 %! assert (args(3).type, 'double')
 %! assert (args(3).is_pointer, 0)
-%! assert (args(3).has_underline, 0)
 %! assert (args(3).const, 1)
 %! assert (args(3).output, 0)
 %! assert (args(3).real, 1)
