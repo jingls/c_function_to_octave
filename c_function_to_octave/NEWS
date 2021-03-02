@@ -1,0 +1,9 @@
+Summary of important user-visible changes for c_function_to_octave 1.0.0 (2021-03-01):
+----------------------------------------------------------
+
+ ** First release.
+
+ ** Added functions:
+
+      build_template_filename   call_generate_c_files   extract_c_call
+      generate_c_file   make_header   single_function_to_octave
