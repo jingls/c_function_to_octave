@@ -41,10 +41,11 @@ function retval = single_function_to_octave (str_call, c_file, documentation)
   template_filename = build_template_filename (prototype_info);
   file_out = [template_filename "_oct.cc"];
   
-  oct_file = [category ".cc"];
-  copyfile ("header.cc", oct_file);
+  oct_source_file = [category ".cc"];
   
-  fid_out = fopen (oct_file, "a");
+  fid_out = fopen (oct_source_file, "w");
+  
+  fputs (fid_out, make_header ("performcalculationcategory"));
   
   % we need to add the function declaration before calling it
   cell_str = file_into_cellstr (c_file);
@@ -55,13 +56,15 @@ function retval = single_function_to_octave (str_call, c_file, documentation)
   fputs (fid_out, strjoin (cell_str, ""));
   fclose (fid_out);
   
-  category_oct = [category ".oct"];
+  category_oct = [pwd filesep category ".oct"];
+  
   autoload (function_name, category_oct, "remove");
   
-  [output, status] = mkoctfile (oct_file);
+  [output, status] = mkoctfile (oct_source_file);
   
   % needed when loading from an oct file
   autoload (function_name, category_oct);
+  delete (oct_source_file);
 
 endfunction
 
@@ -69,14 +72,20 @@ endfunction
 %! c_file = "perform_calculation.c";
 %! fid_out = fopen (c_file, "w");
 %! str_function = ["double perform_calculation (double a, double b) { return a + b; }"];
+%! [desc, flag] = pkg ("describe", "octavetools");
+%! if (strcmp (flag{1}, "Not installed") || strcmp (flag{1}, "Not loaded"))
+%!   error ("Please download, install and load the octavetools package from https://github.com/jingls/octavetools.");
+%! endif
+%! disp (["Trying to compile the function '" str_function "'"]);
 %! fputs (fid_out, str_function);
 %! fclose(fid_out);
 %! output_file = "double_perform_calculation_double_real_double_real_oct.cc";
-%! delete (output_file);
-%! addpath ("../../../../octavetools/inst");
 %! str_call = 'double perform_calculation (double a, double b);';
-%! documentation = "Return the sum of a and b.";
+%! documentation = "Return the sum of @var{a} and @var{b}.";
 %! retval = single_function_to_octave (str_call, c_file, documentation);
+%! delete (c_file);
+%! delete (output_file);
 %! observed = perform_calculation (1, 2);
 %! expected = 3;
 %! assert (observed, expected);
+%! disp (["Created and loaded the function 'perform_calculation'. Try 'help perform_calculation' or 'perform_calculation (1, 2)'"]);
